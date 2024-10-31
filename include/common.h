@@ -18,6 +18,8 @@
 #include <time.h>
 #include <linux/types.h>
 #include <linux/string.h>
+#include <linux/delay.h>
+#include <image.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <linux/kernel.h>

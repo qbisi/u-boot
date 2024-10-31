@@ -4,6 +4,7 @@
  */
 
 #include "rockchip-u-boot.dtsi"
+#include <config.h>
 
 / {
 	aliases {
@@ -109,6 +110,12 @@
 		status = "disabled";
 	};
 };
+
+#ifdef CONFIG_DRM_ROCKCHIP
+&display_subsystem{
+	bootph-all;
+};
+#endif
 
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {

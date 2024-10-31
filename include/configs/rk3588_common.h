@@ -31,6 +31,8 @@
 	"partitions=" PARTS_DEFAULT		\
 	ENV_MEM_LAYOUT_SETTINGS			\
 	ROCKCHIP_DEVICE_SETTINGS \
-	"boot_targets=" BOOT_TARGETS "\0"
+	"boot_targets=" BOOT_TARGETS "\0" \
+	"bootmenu_0=" "UEFI Boot Manager=bootefi bootmgr" "\0"\
+	"bootmenu_1=" "UEFI Maintenance Menu=eficonfig" "\0"
 
 #endif /* __CONFIG_RK3588_COMMON_H */

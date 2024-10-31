@@ -155,8 +155,8 @@ static int dwc3_generic_remove(struct udevice *dev,
 		dm_gpio_free(ulpi_reset->dev, ulpi_reset);
 	}
 
-	dwc3_remove(dwc3);
 	dwc3_shutdown_phy(dev, &priv->phys);
+	dwc3_remove(dwc3);
 	unmap_physmem(dwc3->regs, MAP_NOCACHE);
 
 	return 0;

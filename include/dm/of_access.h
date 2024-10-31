@@ -386,6 +386,22 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 		      u32 *out_values, size_t sz);
 
 /**
+ * of_write_u32_array() - Find and write an array of 32 bit integers
+ *
+ * Search for a property in a device node and write 32-bit value(s) to
+ * it.
+ *
+ * @np:		device node from which the property value is to be read.
+ * @propname:	name of the property to be searched.
+ * @values:	pointer to update value, modified only if return value is 0.
+ * @sz:		number of array elements to read
+ * @return 0 on success, -EINVAL if the property does not exist, -ENODATA
+ * if property does not have a value, and -EOVERFLOW is longer than sz.
+ */
+int of_write_u32_array(const struct device_node *np, const char *propname,
+		       u32 *values, size_t sz);
+
+/**
  * of_property_match_string() - Find string in a list and return index
  *
  * This function searches a string list property and returns the index
@@ -562,6 +578,17 @@ int of_alias_get_id(const struct device_node *np, const char *stem);
  * Return: alias ID, if found, else -1
  */
 int of_alias_get_highest_id(const char *stem);
+
+/**
+ * of_alias_get_dev - Get device_node by given stem and alias id
+ *
+ * Travels the lookup table to get the device_node by given stem and alias id.
+ *
+ * @stem:	Alias stem of the given device_node
+ * @id:         Alias id of the given device_node
+ * @return device_node, if found, else NULL
+ */
+struct device_node *of_alias_get_dev(const char *stem, int id);
 
 /**
  * of_get_stdout() - Get node to use for stdout

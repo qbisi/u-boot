@@ -339,3 +339,5 @@
 		status = "disabled";
 	};
 };
+
+#include "rk3588-drm.dtsi"

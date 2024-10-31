@@ -614,6 +614,8 @@ static int rockchip_u3phy_exit(struct phy *phy)
 {
 	struct rockchip_udphy *udphy = dev_get_priv(phy->dev);
 
+	udphy_u3_port_disable(udphy, true);
+	
 	/* DP only or high-speed */
 	if (!(udphy->mode & UDPHY_MODE_USB) || udphy->hs)
 		return 0;

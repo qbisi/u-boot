@@ -548,6 +548,25 @@ int of_read_u32_array(const struct device_node *np, const char *propname,
 	return 0;
 }
 
+int of_write_u32_array(const struct device_node *np, const char *propname,
+		       u32 *values, size_t sz)
+{
+	__be32 *val;
+
+	debug("%s: %s: ", __func__, propname);
+	val = of_find_property_value_of_size(np, propname,
+					     sz * sizeof(*values));
+
+	if (IS_ERR(val))
+		return PTR_ERR(val);
+
+	debug("size %zd\n", sz);
+	while (sz--)
+		*val++ = cpu_to_be32p(values++);
+
+	return 0;
+}
+
 int of_read_u32_index(const struct device_node *np, const char *propname,
 		      int index, u32 *outp)
 {
@@ -928,6 +947,26 @@ int of_alias_get_highest_id(const char *stem)
 	mutex_unlock(&of_mutex);
 
 	return id;
+}
+
+struct device_node *of_alias_get_dev(const char *stem, int id)
+{
+	struct alias_prop *app;
+	struct device_node *np = NULL;
+
+	mutex_lock(&of_mutex);
+	list_for_each_entry(app, &aliases_lookup, link) {
+		if (strcmp(app->stem, stem) != 0)
+			continue;
+
+		if (id == app->id) {
+			np = app->np;
+			break;
+		}
+	}
+	mutex_unlock(&of_mutex);
+
+	return np;
 }
 
 struct device_node *of_get_stdout(void)

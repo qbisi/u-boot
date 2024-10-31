@@ -1,0 +1,327 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+* Copyright (c) 2021 Rockchip Electronics Co., Ltd.
+*/
+
+#include "rk3588s.dtsi"
+#include "rk3588-pinctrl.dtsi"
+
+/ {
+	aliases {
+		hdmi1 = &hdmi1;
+		hdptxhdmi1 = &hdptxphy_hdmi1;
+	};
+	
+	usb_host1_xhci: usb@fc400000 {
+		compatible = "rockchip,rk3588-dwc3", "snps,dwc3";
+		reg = <0x0 0xfc400000 0x0 0x400000>;
+		interrupts = <GIC_SPI 221 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&cru REF_CLK_USB3OTG1>, <&cru SUSPEND_CLK_USB3OTG1>,
+		<&cru ACLK_USB3OTG1>;
+		clock-names = "ref_clk", "suspend_clk", "bus_clk";
+		dr_mode = "otg";
+		phys = <&usbdp_phy1 PHY_TYPE_USB3>;
+		phy-names = "usb3-phy";
+		//  phys = <&u2phy1_otg>, <&usbdp_phy1 PHY_TYPE_USB3>;
+		//  phy-names = "usb2-phy", "usb3-phy";
+		phy_type = "utmi_wide";
+		power-domains = <&power RK3588_PD_USB>;
+		resets = <&cru SRST_A_USB3OTG1>;
+		snps,dis_enblslpm_quirk;
+		snps,dis-u2-freeclk-exists-quirk;
+		snps,dis-del-phy-power-chg-quirk;
+		snps,dis-tx-ipgap-linecheck-quirk;
+		status = "disabled";
+	};
+	
+	usbdpphy1_grf: syscon@fd5cc000 {
+		compatible = "rockchip,rk3588-usbdpphy-grf", "syscon";
+		reg = <0x0 0xfd5cc000 0x0 0x4000>;
+	};
+	
+	usb2phy1_grf: syscon@fd5d4000 {
+		compatible = "rockchip,rk3588-usb2phy-grf", "syscon", "simple-mfd";
+		reg = <0x0 0xfd5d4000 0x0 0x4000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		
+		u2phy1: usb2phy@4000 {
+			compatible = "rockchip,rk3588-usb2phy";
+			reg = <0x4000 0x10>;
+			#clock-cells = <0>;
+			clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>;
+			clock-names = "phyclk";
+			clock-output-names = "usb480m_phy1";
+			interrupts = <GIC_SPI 394 IRQ_TYPE_LEVEL_HIGH 0>;
+			resets = <&cru SRST_OTGPHY_U3_1>, <&cru SRST_P_USB2PHY_U3_1_GRF0>;
+			reset-names = "phy", "apb";
+			status = "disabled";
+			
+			u2phy1_otg: otg-port {
+				#phy-cells = <0>;
+				status = "disabled";
+			};
+		};
+	};
+	
+	hdptxphy1_grf: syscon@fd5e4000 {
+		compatible = "rockchip,rk3588-hdptxphy-grf", "syscon";
+		reg = <0x0 0xfd5e4000 0x0 0x100>;
+	};
+	
+	dp1: dp@fde60000 {
+		compatible = "rockchip,rk3588-dp";
+		reg = <0x0 0xfde60000 0x0 0x4000>;
+		interrupts = <GIC_SPI 162 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&cru PCLK_DP1>, <&cru CLK_AUX16M_1>,
+		<&cru MCLK_I2S8_8CH_TX>, <&cru MCLK_SPDIF5_DP1>,
+		<&hclk_vo0>, <&cru CLK_DP1>;
+		clock-names = "apb", "aux", "i2s", "spdif", "hclk", "hdcp";
+		assigned-clocks = <&cru CLK_AUX16M_1>;
+		assigned-clock-rates = <16000000>;
+		resets = <&cru SRST_DP1>;
+		phys = <&usbdp_phy1_dp>;
+		power-domains = <&power RK3588_PD_VO0>;
+		#sound-dai-cells = <1>;
+		status = "disabled";
+		
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			
+			port@0 {
+				reg = <0>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				
+				dp1_in_vp0: endpoint@0 {
+					reg = <0>;
+					remote-endpoint = <&vp0_out_dp1>;
+					status = "disabled";
+				};
+				
+				dp1_in_vp1: endpoint@1 {
+					reg = <1>;
+					remote-endpoint = <&vp1_out_dp1>;
+					status = "disabled";
+				};
+				
+				dp1_in_vp2: endpoint@2 {
+					reg = <2>;
+					remote-endpoint = <&vp2_out_dp1>;
+					status = "disabled";
+				};
+			};
+			
+			port@1 {
+				reg = <1>;
+				
+			dp1_out: endpoint { };
+			};
+		};
+	};
+	
+	hdptxphy_hdmi1: hdmiphy@fed70000 {
+		compatible = "rockchip,rk3588-hdptx-phy";
+		reg = <0x0 0xfed70000 0x0 0x2000>;
+		clocks = <&cru CLK_USB2PHY_HDPTXRXPHY_REF>, <&cru PCLK_HDPTX1>;
+		clock-names = "ref", "apb";
+		clock-output-names = "clk_hdmiphy_pixel1";
+		#clock-cells = <0>;
+		resets = <&cru SRST_HDPTX1>, <&cru SRST_P_HDPTX1>,
+		<&cru SRST_HDPTX1_INIT>, <&cru SRST_HDPTX1_CMN>,
+		<&cru SRST_HDPTX1_LANE>, <&cru SRST_HDPTX1_ROPLL>,
+		<&cru SRST_HDPTX1_LCPLL>;
+		reset-names = "phy", "apb", "init", "cmn", "lane", "ropll",
+		"lcpll";
+		rockchip,grf = <&hdptxphy1_grf>;
+		#phy-cells = <0>;
+		status = "disabled";
+		
+		hdptxphy_hdmi_clk1: clk-port {
+			#clock-cells = <0>;
+			status = "okay";
+		};
+	};
+	
+	hdmi1: hdmi@fdea0000 {
+		compatible = "rockchip,rk3588-dw-hdmi";
+		reg = <0x0 0xfdea0000 0x0 0x10000>, <0x0 0xfdeb0000 0x0 0x10000>;
+		interrupts = <GIC_SPI 173 IRQ_TYPE_LEVEL_HIGH 0>,
+		<GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH 0>,
+		<GIC_SPI 175 IRQ_TYPE_LEVEL_HIGH 0>,
+		<GIC_SPI 176 IRQ_TYPE_LEVEL_HIGH 0>,
+		<GIC_SPI 361 IRQ_TYPE_LEVEL_HIGH 0>;
+		clocks = <&cru PCLK_HDMITX1>,
+		<&cru CLK_HDMIHDP1>,
+		<&cru CLK_HDMITX1_EARC>,
+		<&cru CLK_HDMITX1_REF>,
+		<&cru MCLK_I2S6_8CH_TX>,
+		<&cru DCLK_VOP0>,
+		<&cru DCLK_VOP1>,
+		<&cru DCLK_VOP2>,
+		<&cru DCLK_VOP3>,
+		<&hclk_vo1>,
+		<&hdptxphy_hdmi_clk1>;
+		clock-names = "pclk",
+		"hpd",
+		"earc",
+		"hdmitx_ref",
+		"aud",
+		"dclk_vp0",
+		"dclk_vp1",
+		"dclk_vp2",
+		"dclk_vp3",
+		"hclk_vo1",
+		"link_clk";
+		resets = <&cru SRST_HDMITX1_REF>, <&cru SRST_HDMIHDP1>;
+		reset-names = "ref", "hdp";
+		power-domains = <&power RK3588_PD_VO1>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hdmim2_tx1_cec &hdmim0_tx1_hpd &hdmim1_tx1_scl &hdmim1_tx1_sda>;
+		reg-io-width = <4>;
+		rockchip,grf = <&sys_grf>;
+		rockchip,vo1_grf = <&vo1_grf>;
+		phys = <&hdptxphy_hdmi1>;
+		phy-names = "hdmi";
+		#sound-dai-cells = <0>;
+		status = "disabled";
+		
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			
+			hdmi1_in: port@0 {
+				reg = <0>;
+				#address-cells = <1>;
+				#size-cells = <0>;
+				
+				hdmi1_in_vp0: endpoint@0 {
+					reg = <0>;
+					remote-endpoint = <&vp0_out_hdmi1>;
+					status = "disabled";
+				};
+				
+				hdmi1_in_vp1: endpoint@1 {
+					reg = <1>;
+					remote-endpoint = <&vp1_out_hdmi1>;
+					status = "disabled";
+				};
+				
+				hdmi1_in_vp2: endpoint@2 {
+					reg = <2>;
+					remote-endpoint = <&vp2_out_hdmi1>;
+					status = "disabled";
+				};
+			};
+		};
+	};
+	
+	usbdp_phy1: phy@fed90000 {
+		compatible = "rockchip,rk3588-usbdp-phy";
+		reg = <0x0 0xfed90000 0x0 0x10000>;
+		#phy-cells = <1>;
+		clocks = <&cru CLK_USBDPPHY_MIPIDCPPHY_REF>,
+		<&cru CLK_USBDP_PHY1_IMMORTAL>,
+		<&cru PCLK_USBDPPHY1>,
+		<&u2phy1>;
+		clock-names = "refclk", "immortal", "pclk", "utmi";
+		resets = <&cru SRST_USBDP_COMBO_PHY1_INIT>,
+		<&cru SRST_USBDP_COMBO_PHY1_CMN>,
+		<&cru SRST_USBDP_COMBO_PHY1_LANE>,
+		<&cru SRST_USBDP_COMBO_PHY1_PCS>,
+		<&cru SRST_P_USBDPPHY1>;
+		reset-names = "init", "cmn", "lane", "pcs_apb", "pma_apb";
+		rockchip,u2phy-grf = <&usb2phy1_grf>;
+		rockchip,usb-grf = <&usb_grf>;
+		rockchip,usbdpphy-grf = <&usbdpphy1_grf>;
+		rockchip,vo-grf = <&vo0_grf>;
+		status = "disabled";
+		
+		usbdp_phy1_dp: dp-port {
+			#phy-cells = <0>;
+			status = "disabled";
+		};
+	};
+};
+
+&display_subsystem {
+	clocks = <&hdptxphy_hdmi_clk0>, <&hdptxphy_hdmi_clk1>;
+	clock-names = "hdmi0_phy_pll", "hdmi1_phy_pll";
+	
+	route {
+		route_dp1: route-dp1 {
+			status = "disabled";
+			logo,uboot = "logo.bmp";
+			logo,kernel = "logo_kernel.bmp";
+			logo,mode = "center";
+			charge_logo,mode = "center";
+			connect = <&vp1_out_dp1>;
+		};
+		
+		route_hdmi1: route-hdmi1 {
+			status = "disabled";
+			logo,uboot = "logo.bmp";
+			logo,kernel = "logo_kernel.bmp";
+			logo,mode = "center";
+			charge_logo,mode = "center";
+			connect = <&vp1_out_hdmi1>;
+		};
+	};
+};
+
+&vp0 {
+	vp0_out_dp1: endpoint@3 {
+		reg = <3>;
+		remote-endpoint = <&dp1_in_vp0>;
+	};
+	
+	vp0_out_hdmi1: endpoint@5 {
+		reg = <5>;
+		remote-endpoint = <&hdmi1_in_vp0>;
+	};
+};
+
+&vp1 {
+	vp1_out_dp1: endpoint@3 {
+		reg = <3>;
+		remote-endpoint = <&dp1_in_vp1>;
+	};
+	
+	vp1_out_hdmi1: endpoint@5 {
+		reg = <5>;
+		remote-endpoint = <&hdmi1_in_vp1>;
+	};
+};
+
+&vp2 {
+	vp2_out_dp1: endpoint@5 {
+		reg = <5>;
+		remote-endpoint = <&dp1_in_vp2>;
+	};
+	
+	vp2_out_hdmi1: endpoint@7 {
+		reg = <7>;
+		remote-endpoint = <&hdmi1_in_vp2>;
+	};
+};
+
+&hdptxphy_hdmi1 {
+	status = "okay";
+};
+
+&hdptxphy_hdmi1 {
+	status = "okay";
+};
+
+&hdmi1 {
+	status = "okay";
+};
+
+&hdmi1_in_vp1 {
+	status = "okay";
+};
+
+&route_hdmi1 {
+	status = "okay";
+};

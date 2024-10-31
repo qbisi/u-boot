@@ -845,3 +845,15 @@
 &usb_host1_ohci {
 	status = "okay";
 };
+
+&hdmi0 {
+	status = "okay";
+	enable-gpios = <&gpio4 RK_PB1 GPIO_ACTIVE_HIGH>;
+	cec-enable = "true";
+};
+
+&hdmi1 {
+	status = "okay";
+	enable-gpios = <&gpio4 RK_PB2 GPIO_ACTIVE_HIGH>;
+	cec-enable = "true";
+};

@@ -1,0 +1,7 @@
+#include "rk3588s-u-boot.dtsi"
+
+/ {
+	chosen {
+        u-boot,spl-boot-order = &sdmmc, &sdhci;
+	};
+};
