@@ -1,0 +1,54 @@
+#
+# Video drivers selection for rockchip soc. These configs only impact the
+# compile process. You can surely check all the options. In this case, all the
+# display driver will be compiled, but which drivers finally  will be used is
+# decided by device tree configuration. What's more, enable needed power for
+# display by configure the device tree, and the vop driver will do the rest.
+#
+# Author: Eric Gao <eric.gao@rock-chips.com>
+#
+
+menuconfig DRM_ROCKCHIP
+	bool "Rockchip DRM Support"
+	depends on VIDEO && OF_LIVE
+	select VIDEO_BRIDGE
+	select PHY
+	help
+	  Rockchip SoCs provide video output capabilities for High-Definition
+	  Multimedia Interface (HDMI), Low-voltage Differential Signalling
+	  (LVDS), embedded DisplayPort (eDP) and Display Serial Interface (DSI).
+
+	  This driver supports the on-chip video output device, and targets the
+	  Rockchip RK3288 and RK3399.
+
+config DRM_MEM_RESERVED_SIZE_MBYTES
+	int "Size in Mega Bytes"
+	depends on DRM_ROCKCHIP
+	default 32
+
+config DRM_ROCKCHIP_VIDEO_FRAMEBUFFER
+	bool "Drm Framebuffer"
+	depends on DRM_ROCKCHIP
+
+config DRM_ROCKCHIP_DW_HDMI_QP
+	bool "Rockchip specific extensions for Synopsys DW HDMI QP"
+	depends on DRM_ROCKCHIP
+	help
+	 This selects support for Rockchip SoC specific extensions
+	 for the Synopsys DesignWare HDMI QP driver. If you want to
+	 enable HDMI on, you should select this option.
+
+config PHY_ROCKCHIP_SAMSUNG_HDPTX_HDMI
+	bool "Rockchip Samsung HDMI/DP Combo PHY HDMI driver"
+	depends on DRM_ROCKCHIP
+	select LIB_RATIONAL
+	help
+	  Support for Rockchip HDMI/DP Combo PHY HDMI with Samsung
+	  IP block.
+
+config ROCKCHIP_CUBIC_LUT_SIZE
+	int "Rockchip cubic lut size"
+	depends on DRM_ROCKCHIP
+	default 0
+	help
+	  Used to calc cubic lut size.

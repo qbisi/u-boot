@@ -1,0 +1,12 @@
+obj-y += rockchip_bridge.o
+obj-y += rockchip_crtc.o
+obj-y += rockchip_vop.o
+obj-y += rockchip_vop2.o
+obj-y += rockchip_post_csc.o
+obj-y += drm_modes.o rockchip_display_helper.o
+obj-y += rockchip_vop_reg.o
+obj-y += rockchip_display.o
+obj-y += rockchip_connector.o
+obj-y += drm_edid.o
+obj-$(CONFIG_DRM_ROCKCHIP_DW_HDMI_QP) += rockchip_dw_hdmi_qp.o dw_hdmi_qp.o
+obj-$(CONFIG_PHY_ROCKCHIP_SAMSUNG_HDPTX_HDMI) += phy-rockchip-samsung-hdptx-hdmi.o rockchip_phy.o

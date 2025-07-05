@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 /*
- * Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
- */
+* Copyright (c) 2022 Edgeble AI Technologies Pvt. Ltd.
+*/
 
 #include "rockchip-u-boot.dtsi"
 
@@ -9,16 +9,64 @@
 	aliases {
 		spi5 = &sfc;
 	};
-
+	
 	chosen {
-		u-boot,spl-boot-order = "same-as-spl", &sdmmc, &sdhci;
+		u-boot,spl-boot-order = &sdmmc, &sdhci;
 	};
-
+	
 	dmc {
 		compatible = "rockchip,rk3588-dmc";
 		bootph-all;
 	};
 };
+
+#ifdef CONFIG_DRM_ROCKCHIP
+#include <dt-bindings/clock/rockchip,rk3588-cru.h>
+&display_subsystem {
+	bootph-all;
+	
+	route {
+		route_hdmi0: route-hdmi0 {
+			connect = <&vp0_out_hdmi0>;
+		};
+	};
+};
+
+&hdptxphy_hdmi0 {
+	hdptxphy_hdmi_clk0: clk-port {
+		#clock-cells = <0>;
+		status = "okay";
+	};
+};
+
+&hdmi0 {
+	clocks = <&cru PCLK_HDMITX0>,
+	<&cru CLK_HDMIHDP0>,
+	<&cru CLK_HDMITX0_EARC>,
+	<&cru CLK_HDMITX0_REF>,
+	<&cru MCLK_I2S5_8CH_TX>,
+	<&cru DCLK_VOP0>,
+	<&cru DCLK_VOP1>,
+	<&cru DCLK_VOP2>,
+	<&cru DCLK_VOP3>,
+	<&hdptxphy_hdmi_clk0>;
+	clock-names = "pclk",
+	"hpd",
+	"earc",
+	"hdmitx_ref",
+	"aud",
+	"dclk_vp0",
+	"dclk_vp1",
+	"dclk_vp2",
+	"dclk_vp3",
+	"link_clk";
+};
+
+&vp0 {
+	rockchip,plane-mask = <(1 << 0 | 1 << 2)>;
+	rockchip,primary-plane = <2>;
+};
+#endif
 
 #ifdef CONFIG_ROCKCHIP_SPI_IMAGE
 &binman {
